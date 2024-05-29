@@ -31,4 +31,8 @@ with open(csv_out, 'w', encoding='utf-8', newline='') as csv_file_content:
                     for r_id, content in data:
                         sql_cur_orig.execute(f"SELECT Content FROM '{table_name}' where Id = '{r_id}';")
                         orig_values = sql_cur_orig.fetchall()
-                        csv_file.writerow((file, table_name, r_id, orig_values[0][0], content))
+                        orig_value = ""
+                        if len(orig_values) > 0 and len(orig_values[0]) > 0:
+                            orig_value = orig_values[0][0]
+
+                        csv_file.writerow((file, table_name, r_id, orig_value, content))
