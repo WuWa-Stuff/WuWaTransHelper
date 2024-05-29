@@ -23,7 +23,7 @@ with sqlite3.connect(file_new_temp) as sql_con_tmp:
                                 (csv_db, csv_db_table, csv_db_id, csv_text_orig, csv_text_ru))
     sql_con_tmp.commit()
 
-    with open(csv_path + ".tmp", 'w', encoding='utf-8', newline='') as csv_file_content:
+    with open(csv_path, 'w', encoding='utf-8', newline='') as csv_file_content:
         csv_file = csv.writer(csv_file_content)
         for file in os.listdir(dbs_dir_orig):
             full_file_path_orig = os.path.join(dbs_dir_orig, file)
