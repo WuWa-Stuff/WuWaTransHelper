@@ -78,4 +78,6 @@ with sqlite3.connect(file_new_temp) as sql_con_tmp:
         for db_file, db_table, db_id, db_text_orig, db_text_ru in to_dump_back:
             csv_file.writerow((db_file, db_table, db_id, db_text_orig, db_text_ru))
 
+os.remove(file_new_temp)
+
 print("Done")
