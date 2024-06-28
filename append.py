@@ -30,45 +30,44 @@ with sqlite3.connect(file_new_temp) as sql_con_tmp:
             print(f'Processing {file}...')
             with sqlite3.connect(full_file_path_orig) as sql_con_orig:
                 sql_cur_orig = sql_con_orig.cursor()
+                sql_cur_orig.execute("SELECT name FROM sqlite_master WHERE type='table';")
+                tables = sql_cur_orig.fetchall()
+                for table_name_ex in tables:
+                    table_name = table_name_ex[0]
+                    print(f'Processing table "{table_name}"...')
+                    sql_cur_orig.execute(f"SELECT Id,Content FROM '{table_name}';")
+                    data = sql_cur_orig.fetchall()
+                    for r_id, content in data:
+                        sql_cur_tmp.execute(
+                            "SELECT db_file,db_table,db_id,db_text_orig,db_text_ru"
+                            " FROM 'tmp'"
+                            " WHERE db_file = ? AND db_table = ? AND db_id = ?",
+                            (str(file), str(table_name), str(r_id)))
+                        result = sql_cur_tmp.fetchone()
 
-            sql_cur_orig.execute("SELECT name FROM sqlite_master WHERE type='table';")
-            tables = sql_cur_orig.fetchall()
-            for table_name_ex in tables:
-                table_name = table_name_ex[0]
-                print(f'Processing table "{table_name}"...')
-                sql_cur_orig.execute(f"SELECT Id,Content FROM '{table_name}';")
-                data = sql_cur_orig.fetchall()
-                for r_id, content in data:
-                    sql_cur_tmp.execute(
-                        "SELECT db_file,db_table,db_id,db_text_orig,db_text_ru"
-                        " FROM 'tmp'"
-                        " WHERE db_file = ? AND db_table = ? AND db_id = ?",
-                        (str(file), str(table_name), str(r_id)))
-                    result = sql_cur_tmp.fetchone()
+                        if result is None:
+                            sql_cur_tmp.execute("INSERT INTO 'tmp' VALUES (?, ?, ?, ?, ?)",
+                                                (file, table_name, r_id, content, ""))
+                            continue
 
-                    if result is None:
-                        sql_cur_tmp.execute("INSERT INTO 'tmp' VALUES (?, ?, ?, ?, ?)",
-                                            (file, table_name, r_id, content, ""))
-                        continue
+                        db_file = result[0]
+                        db_table = result[1]
+                        db_id = result[2]
+                        db_text_orig = result[3]
 
-                    db_file = result[0]
-                    db_table = result[1]
-                    db_id = result[2]
-                    db_text_orig = result[3]
+                        if content is None:
+                            content = ''
 
-                    if content is None:
-                        content = ''
+                        if content == db_text_orig:
+                            continue
 
-                    if content == db_text_orig:
-                        continue
+                        if (content.replace('\r', '')) == (content.replace('\r', '')):
+                            continue
 
-                    if (content.replace('\r', '')) == (content.replace('\r', '')):
-                        continue
-
-                    sql_cur_tmp.execute("UPDATE 'tmp'"
-                                        " SET db_text_orig = ? db_text_ru = ''"
-                                        " WHERE db_file = ? AND db_table = ? AND db_id = ?",
-                                        (content, str(db_file), str(db_table), str(db_id)))
+                        sql_cur_tmp.execute("UPDATE 'tmp'"
+                                            " SET db_text_orig = ? db_text_ru = ''"
+                                            " WHERE db_file = ? AND db_table = ? AND db_id = ?",
+                                            (content, str(db_file), str(db_table), str(db_id)))
 
         print("Saving to csv init...")
         sql_con_tmp.commit()
