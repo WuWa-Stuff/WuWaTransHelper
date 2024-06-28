@@ -23,7 +23,11 @@ with open(csv_out, 'r', encoding='utf-8') as csv_file_content:
             sql_con = sqlite3.connect(full_file_path)
             sql_cur = sql_con.cursor()
 
-        sql_cur.execute(f"UPDATE '{table_name}' SET Content = ? WHERE Id = ?;", (ru_value, r_id))
+        value_to_use = ru_value
+        if value_to_use is None or len(value_to_use) == 0:
+            value_to_use = en_value
+
+        sql_cur.execute(f"UPDATE '{table_name}' SET Content = ? WHERE Id = ?;", (value_to_use, r_id))
 
 if sql_con is not None:
     sql_con.commit()
