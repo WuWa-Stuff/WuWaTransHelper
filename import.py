@@ -13,12 +13,12 @@ sql_con = None
 sql_cur = None
 
 
-for file in os.listdir(dbs_dir):
-    os.remove(os.path.join(dbs_dir, file))
+if os.environ['UPDATE_MODE'] == '1':
+    for file in os.listdir(dbs_dir):
+        os.remove(os.path.join(dbs_dir, file))
 
-
-for file in os.listdir(dbs_orig_dir):
-    shutil.copy(os.path.join(dbs_orig_dir, file), os.path.join(dbs_dir, file))
+    for file in os.listdir(dbs_orig_dir):
+        shutil.copy(os.path.join(dbs_orig_dir, file), os.path.join(dbs_dir, file))
 
 
 try:
