@@ -1,14 +1,25 @@
 import csv
 import os.path
+import shutil
 import sqlite3
 import sys
 
+dbs_orig_dir = os.environ['DIR_ORIGINAL']
 dbs_dir = os.environ['DIR_TRANSLATED']
 csv_out = os.environ['FILE_CSV']
 
 last_file = None
 sql_con = None
 sql_cur = None
+
+
+for file in os.listdir(dbs_dir):
+    os.remove(os.path.join(dbs_dir, file))
+
+
+for file in os.listdir(dbs_orig_dir):
+    shutil.copy(os.path.join(dbs_orig_dir, file), os.path.join(dbs_dir, file))
+
 
 try:
     with open(csv_out, 'r', encoding='utf-8') as csv_file_content:
