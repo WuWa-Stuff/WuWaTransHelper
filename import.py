@@ -8,12 +8,18 @@ dbs_orig_dir = os.environ['DIR_ORIGINAL']
 dbs_dir = os.environ['DIR_TRANSLATED']
 csv_out = os.environ['FILE_CSV']
 
+update_mode = os.environ['UPDATE_MODE'] == '1'
+
 last_file = None
 sql_con = None
 sql_cur = None
 
 
-if os.environ['UPDATE_MODE'] == '1':
+if update_mode:
+    csv_update = os.environ['FILE_CSV_UPDATE']
+    if csv_update is not None and os.path.isfile(csv_update):
+        csv_out = csv_update
+else:
     for file in os.listdir(dbs_dir):
         os.remove(os.path.join(dbs_dir, file))
 
